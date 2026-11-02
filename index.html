@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Midnight Society</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&amp;family=Dela+Gothic+One&amp;family=JetBrains+Mono:wght@400;600&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<style>
+/* Neon-Straße bei Nacht: fester Szenen-Hintergrund je Seite, Inhalt als Rauchglas-Säule im ausgesparten Kasten des Bildes, Kanji als Leuchtröhre markiert jede Seite. */
+:root{
+  --ink:#09090b;
+  --smoke:rgba(11,11,15,.62);
+  --bone:#f2eee7;
+  --ash:#a7a3a9;
+  --red:#e3171e;
+  --red-hot:#ff3340;
+  --line:rgba(242,238,231,.14);
+  --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",sans-serif;
+  --jp:"Dela Gothic One","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  --body:"Zen Kaku Gothic New","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--ink)}
+body{margin:0;position:relative;z-index:0;min-height:100vh;background:var(--ink);color:var(--bone);font-family:var(--body);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red-hot);outline-offset:3px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+
+/* ---------- Hintergrund ---------- */
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;background:var(--ink)}
+.bg-l{position:absolute;inset:0;background-size:cover;background-position:center 38%;opacity:0;transition:opacity .9s ease;transform:scale(1.02)}
+.bg-l.on{opacity:1}
+.bg::after{content:"";position:absolute;inset:0;background:
+  radial-gradient(120% 90% at 50% 45%,transparent 45%,rgba(5,5,7,.72) 100%),
+  linear-gradient(180deg,rgba(9,9,11,.55) 0%,rgba(9,9,11,.05) 22%,rgba(9,9,11,.15) 70%,rgba(9,9,11,.8) 100%)}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.09;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- Kopfzeile ---------- */
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:24px;padding:12px max(16px,3vw);background:rgba(9,9,11,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand svg{width:30px;height:30px}
+.brand b{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.06em;text-transform:uppercase;line-height:1}
+.brand small{display:block;font-family:var(--jp);font-size:10px;letter-spacing:.3em;color:var(--red-hot);line-height:1.2;margin-top:2px}
+.nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;display:flex;align-items:baseline;gap:6px;padding:8px 12px;text-decoration:none;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ash);border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.nav a i{font-style:normal;color:var(--red);font-size:10px}
+.nav a:hover{color:var(--bone)}
+.nav a[aria-current="page"]{color:var(--bone);border-bottom-color:var(--red);text-shadow:0 0 14px rgba(255,51,64,.55)}
+@media (max-width:820px){
+  .top{flex-wrap:wrap;gap:6px;padding-bottom:0}
+  .nav{margin-left:-12px;width:calc(100% + 24px);padding:0 4px}
+  .nav a{padding:10px 10px}
+}
+
+/* ---------- Seitenrahmen ---------- */
+.page{padding:clamp(40px,7vw,96px) 0 40px}
+.page[hidden]{display:none}
+.col{width:min(1720px,calc(100% - 2 * clamp(16px,4vw,80px)));margin:0 auto;display:grid;gap:clamp(28px,4vw,44px)}
+.intro{display:grid;gap:16px;align-content:start}
+.main{display:grid;gap:22px;align-content:start;min-width:0}
+@media (min-width:1100px){
+  .glass{grid-template-columns:minmax(280px,1fr) minmax(0,2.3fr);column-gap:clamp(40px,4.5vw,96px);align-items:start}
+  .glass .intro{position:sticky;top:100px}
+}
+.glass{position:relative;background:var(--smoke);backdrop-filter:blur(9px) saturate(1.1);-webkit-backdrop-filter:blur(9px) saturate(1.1);border:1px solid var(--line);padding:clamp(22px,4vw,44px);display:grid;gap:22px}
+.glass::before{content:"";position:absolute;left:-1px;top:-1px;width:56px;height:3px;background:var(--red);box-shadow:0 0 16px var(--red-hot)}
+
+/* Kapitelköpfe */
+.head{position:relative;padding-right:clamp(64px,11vw,150px);display:grid;gap:14px;align-content:start;min-height:calc(var(--n,2) * clamp(3rem,8.4vw,8.6rem) * 1.06)}
+.head::before{content:"";position:absolute;z-index:-1;inset:-70px -6% -60px calc(-1 * clamp(16px,4vw,80px));background:linear-gradient(90deg,rgba(8,8,10,.86) 0%,rgba(8,8,10,.7) 45%,rgba(8,8,10,.25) 75%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);pointer-events:none}
+.kanji{position:absolute;top:-.1em;right:0;writing-mode:vertical-rl;font-family:var(--jp);font-size:clamp(3rem,8.4vw,8.6rem);line-height:1;letter-spacing:.04em;color:transparent;-webkit-text-stroke:1.6px var(--red-hot);text-shadow:0 0 22px rgba(255,51,64,.5);user-select:none;white-space:nowrap}
+.chapter{font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#d2cdd0;display:flex;gap:12px;align-items:center}
+.chapter b{color:var(--red-hot);font-weight:600}
+.chapter::after{content:"";height:1px;width:64px;background:var(--line)}
+h2{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(2.7rem,6vw,6.6rem);line-height:.9;letter-spacing:.005em}
+h2 em{font-style:normal;color:var(--red-hot);text-shadow:0 0 28px rgba(255,51,64,.45)}
+h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(1.5rem,2.6vw,2rem);letter-spacing:.04em;line-height:1}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red-hot)}
+.lede{font-size:clamp(1.05rem,1.3vw,1.3rem);color:var(--bone);max-width:62ch}
+.copy{color:#d9d4cf;max-width:65ch}
+.copy+.copy{margin-top:-8px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:22px}
+
+/* ---------- Start ---------- */
+.hero{display:grid;gap:20px;padding-top:clamp(0px,3vw,40px)}
+.eyebrow{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash)}
+.eyebrow span+span::before{content:"•";color:var(--red);margin-right:18px}
+.hero .eyebrow,.hero .lede,.hero .jp-sub,.head .lede,.chapter{text-shadow:0 1px 14px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.6)}
+.eyebrow{color:#c9c4c8}
+@media (max-width:560px){.eyebrow{font-size:11px;letter-spacing:.14em;gap:4px 10px}.eyebrow span+span::before{margin-right:10px}}
+.mega{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(4.2rem,13vw,13rem);line-height:.8;letter-spacing:-.005em}
+.mega span{display:block}
+.mega .red{color:var(--red-hot);text-shadow:0 0 34px rgba(255,51,64,.55),0 0 2px rgba(255,120,120,.6)}
+.jp-sub{font-family:var(--jp);font-size:clamp(1.1rem,2vw,1.5rem);letter-spacing:.5em;color:var(--bone);opacity:.85}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border:1px solid var(--line);background:rgba(9,9,11,.5);transition:background .2s,border-color .2s,box-shadow .2s}
+.btn:hover{border-color:var(--bone)}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 rgba(255,51,64,0)}
+.btn-red:hover{background:var(--red-hot);border-color:var(--red-hot);box-shadow:0 0 28px rgba(255,51,64,.5)}
+.btn::after{content:"→"}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));border:1px solid var(--line);background:rgba(9,9,11,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.status div{padding:16px 20px;display:grid;gap:2px;font-size:15px;color:var(--ash)}
+.status div+div{border-left:1px solid var(--line)}
+.status b{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em;color:var(--bone);display:flex;align-items:center;gap:10px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--red-hot);box-shadow:0 0 12px var(--red-hot);flex:none}
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.pillar{display:grid;align-content:start;gap:10px;padding:22px 20px 24px;background:rgba(11,11,15,.78);text-decoration:none;transition:background .25s}
+.pillar:hover{background:rgba(40,8,10,.85)}
+.pillar .n{font-family:var(--display);font-weight:900;font-size:44px;line-height:.8;color:transparent;-webkit-text-stroke:1.2px var(--red-hot)}
+.pillar strong{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.04em;text-transform:uppercase;line-height:1.05}
+.pillar span{font-size:14.5px;color:var(--ash);line-height:1.5}
+.pillar em{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--red-hot);margin-top:4px}
+.quote{margin:0;padding:clamp(22px,4vw,36px);border-left:3px solid var(--red);background:linear-gradient(90deg,rgba(60,6,9,.55),rgba(11,11,15,.4));font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.08;text-transform:uppercase;letter-spacing:.01em}
+.quote cite{display:block;margin-top:14px;font-family:var(--mono);font-style:normal;font-weight:400;font-size:12px;letter-spacing:.16em;color:var(--ash)}
+.band{overflow:hidden;border-block:1px solid rgba(255,51,64,.5);background:rgba(20,3,5,.72);white-space:nowrap}
+.band div{display:inline-flex;gap:48px;padding:14px 0;animation:roll 38s linear infinite;font-family:var(--display);font-weight:900;font-size:clamp(1.3rem,2.4vw,1.9rem);letter-spacing:.12em;text-transform:uppercase}
+.band span{color:var(--bone)}
+.band span:nth-child(3n+2){color:var(--red-hot)}
+@keyframes roll{to{transform:translateX(-50%)}}
+
+/* ---------- Tabellen-Reihen ---------- */
+.rows{display:grid;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:minmax(150px,210px) 1fr auto;gap:8px 24px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)}
+.row dt,.row .k{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:.04em;text-transform:uppercase}
+.row dd{margin:0;color:#d9d4cf}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--line);color:var(--ash);white-space:nowrap}
+.chip.hot{border-color:var(--red);color:#fff;background:rgba(227,23,30,.22)}
+@media (max-width:640px){.row{grid-template-columns:1fr}.row .chip{justify-self:start}}
+
+/* Zeitleiste */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;counter-reset:t}
+.timeline li{list-style:none;position:relative;padding:34px 18px 0 0;display:grid;gap:8px;align-content:start}
+.timeline li::before{content:"";position:absolute;top:8px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),rgba(227,23,30,.25))}
+.timeline li::after{content:"";position:absolute;top:2px;left:0;width:14px;height:14px;border-radius:50%;background:var(--ink);border:2px solid var(--red-hot);box-shadow:0 0 12px var(--red-hot)}
+.timeline strong{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em}
+.timeline span{color:#d9d4cf;font-size:15.5px}
+ol.timeline{margin:0;padding:0}
+@media (max-width:720px){.timeline{grid-template-columns:1fr;gap:18px}.timeline li{padding:0 0 0 30px}.timeline li::before{top:0;bottom:-18px;left:6px;right:auto;width:2px;height:auto}.timeline li:last-child::before{bottom:0}.timeline li::after{top:4px}}
+
+/* ---------- Leistungen ---------- */
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:16px 12px 14px;border:1px solid var(--line);background:rgba(9,9,11,.45);display:grid;gap:8px;align-content:start}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:12px;color:var(--red-hot);letter-spacing:.1em}
+.steps li span{font-family:var(--display);font-weight:800;font-size:19px;line-height:1.05;text-transform:uppercase;letter-spacing:.03em;hyphens:auto}
+.steps li:not(:last-child)::after{content:"";position:absolute;right:-8px;top:50%;width:6px;height:6px;border-top:2px solid var(--red-hot);border-right:2px solid var(--red-hot);transform:translateY(-50%) rotate(45deg)}
+.steps li:last-child{border-color:var(--red);background:rgba(227,23,30,.18)}
+@media (max-width:900px){.steps{grid-template-columns:repeat(3,1fr)}.steps li:nth-child(3)::after{display:none}}
+@media (max-width:480px){.steps{grid-template-columns:repeat(2,1fr)}.steps li::after{display:none}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.card{border:1px solid var(--line);background:rgba(9,9,11,.5);padding:22px 20px;display:grid;gap:10px;align-content:start}
+.card .tag{justify-self:start}
+.card p{color:#d9d4cf;font-size:15.5px}
+.card.sig{border-color:var(--red);background:linear-gradient(160deg,rgba(80,6,10,.6),rgba(9,9,11,.6));box-shadow:0 0 34px rgba(227,23,30,.18) inset}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:18px}
+.tier{display:grid;gap:14px;align-content:start}
+.keycard{aspect-ratio:1.586;border-radius:14px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#1a1a1f,#0c0c0f 60%);box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.keycard::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.07) 50%,transparent 60%)}
+.keycard .chipgfx{width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#7a7468,#3b3832);opacity:.85}
+.keycard .nm{font-family:var(--display);font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:.06em;line-height:.95}
+.keycard .nm small{display:block;font-family:var(--mono);font-weight:400;font-size:10px;letter-spacing:.24em;color:var(--ash);margin-bottom:6px}
+.keycard .lv{position:absolute;right:16px;top:16px;display:flex;gap:4px}
+.keycard .lv i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--red-hot)}
+.keycard .lv i.f{background:var(--red-hot);box-shadow:0 0 8px var(--red-hot)}
+.keycard.vip{background:linear-gradient(135deg,#2a0d10,#0f0a0b 65%);border-color:rgba(255,51,64,.35)}
+.keycard.elite{background:linear-gradient(135deg,#c3141b,#4a0609 55%,#120304);border-color:rgba(255,120,120,.5);box-shadow:0 14px 40px rgba(227,23,30,.35)}
+.keycard.elite .nm small{color:#ffd3d5}
+.keycard .seal{position:absolute;right:14px;bottom:10px;font-family:var(--jp);font-size:34px;color:rgba(255,255,255,.1)}
+.tier p{color:#d9d4cf;font-size:15.5px}
+.note{font-size:14px;color:var(--ash);border-left:2px solid var(--line);padding-left:14px;max-width:65ch}
+
+/* ---------- Kunden ---------- */
+.dossier{border:1px solid var(--line);background:rgba(232,226,216,.04);font-size:15.5px}
+.dossier header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash);background:rgba(9,9,11,.5)}
+.dossier header b{color:var(--red-hot);font-weight:600}
+.dossier dl{margin:0;display:grid}
+.dossier .f{display:grid;grid-template-columns:150px 1fr;gap:6px 20px;padding:14px 18px;border-bottom:1px dashed rgba(242,238,231,.12)}
+.dossier .f:last-child{border-bottom:0}
+.dossier dt{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red-hot);padding-top:3px}
+.dossier dd{margin:0;color:#e2ddd6}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+@media (max-width:560px){.dossier .f{grid-template-columns:1fr}}
+.cert{position:relative;width:100%;max-width:560px;padding:28px 26px;border:1px solid rgba(242,238,231,.35);outline:1px solid rgba(242,238,231,.15);outline-offset:-8px;background:radial-gradient(120% 100% at 50% 0%,rgba(60,8,12,.5),rgba(9,9,11,.6));display:grid;gap:12px;text-align:center}
+.cert .t1{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--ash)}
+.cert .t2{font-family:var(--display);font-weight:900;font-size:clamp(1.8rem,3.4vw,2.4rem);text-transform:uppercase;letter-spacing:.06em;line-height:1}
+.cert .lines{display:grid;gap:10px;margin:8px auto 0;width:min(100%,320px);text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+.cert .lines span{display:flex;gap:10px;align-items:end}
+.cert .lines span::after{content:"";flex:1;border-bottom:1px solid rgba(242,238,231,.3);transform:translateY(-3px)}
+.hanko{position:absolute;right:18px;bottom:16px;width:62px;height:62px;border:2.5px solid var(--red-hot);border-radius:50%;display:grid;place-items:center;font-family:var(--jp);font-size:15px;line-height:1.05;color:var(--red-hot);transform:rotate(-12deg);opacity:.9;writing-mode:vertical-rl}
+.muster{position:absolute;left:14px;top:12px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash);border:1px solid var(--line);padding:2px 6px}
+.events{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--line)}
+.events li{display:grid;grid-template-columns:56px minmax(170px,240px) 1fr;gap:6px 20px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--line)}
+.events .i{font-family:var(--jp);font-size:20px;color:var(--red-hot)}
+.events strong{font-family:var(--display);font-weight:800;font-size:23px;text-transform:uppercase;letter-spacing:.04em;line-height:1.05}
+.events span{color:#d9d4cf}
+@media (max-width:640px){.events li{grid-template-columns:44px 1fr}.events span{grid-column:2}}
+
+/* ---------- Team ---------- */
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ash)}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{width:14px;height:14px;display:inline-block;border-left:3px solid var(--red-hot);background:rgba(227,23,30,.18)}
+.legend i.p{border-left-color:var(--ash);background:rgba(242,238,231,.06)}
+.ranks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rank{display:grid;grid-template-columns:52px 74px minmax(150px,210px) 1fr;gap:6px 18px;align-items:center;padding:12px 16px 12px 14px;background:rgba(9,9,11,.5);border:1px solid rgba(242,238,231,.08);border-left:3px solid rgba(242,238,231,.12)}
+.rank.lead{border-left-color:var(--red-hot);background:linear-gradient(90deg,rgba(90,8,12,.5),rgba(9,9,11,.5) 60%)}
+.rank.trial{border-left-style:dashed;border-left-color:var(--ash)}
+.rank .no{font-family:var(--display);font-weight:900;font-size:34px;line-height:1;font-variant-numeric:tabular-nums;color:var(--bone)}
+.rank.lead .no{color:var(--red-hot);text-shadow:0 0 16px rgba(255,51,64,.5)}
+.rank .kj{font-family:var(--jp);font-size:22px;line-height:1.1;white-space:nowrap}
+.rank .tt strong{display:block;font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em;line-height:1}
+.rank .tt small{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ash)}
+.rank .do{font-size:15px;color:#d9d4cf;line-height:1.5}
+@media (max-width:760px){.rank{grid-template-columns:44px 1fr;padding:12px 14px}.rank .kj{grid-column:2;grid-row:1;font-size:18px}.rank .tt{grid-column:2}.rank .do{grid-column:1 / -1}}
+.rules{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:r}
+.rules li{counter-increment:r;display:grid;grid-template-columns:38px 1fr;gap:12px;color:#d9d4cf}
+.rules li::before{content:counter(r,decimal-leading-zero);font-family:var(--mono);font-size:13px;color:var(--red-hot);padding-top:3px}
+
+/* ---------- Standort ---------- */
+.plan{max-width:980px;border:1px solid var(--line);background:rgba(9,9,11,.55);padding:14px}
+.plan svg{width:100%;height:auto}
+.plan figcaption{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash);padding-top:10px}
+.values{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:1px solid var(--line)}
+.values li{display:grid;grid-template-columns:70px 1fr;gap:4px 18px;padding:18px 0;border-bottom:1px solid var(--line)}
+.values .n{font-family:var(--display);font-weight:900;font-size:40px;line-height:.85;color:transparent;-webkit-text-stroke:1.2px var(--red-hot);grid-row:span 2}
+.values strong{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em;line-height:1.1}
+.values span{color:#d9d4cf;font-size:15.5px}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.phase{border:1px solid var(--line);background:rgba(9,9,11,.5);padding:20px;display:grid;gap:10px;align-content:start}
+.phase .bar{height:4px;background:rgba(242,238,231,.1);position:relative}
+.phase .bar i{position:absolute;inset:0 auto 0 0;background:var(--red-hot);box-shadow:0 0 10px var(--red-hot)}
+.phase p{color:#d9d4cf;font-size:15.5px}
+.finale{text-align:center;padding:clamp(34px,6vw,64px) clamp(18px,4vw,40px);border:1px solid rgba(255,51,64,.4);background:radial-gradient(80% 120% at 50% 100%,rgba(120,10,16,.55),rgba(9,9,11,.7));display:grid;gap:18px;justify-items:center}
+.finale .big{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:clamp(2.6rem,7.6vw,6rem);line-height:.86}
+.finale .big span{display:block;color:var(--red-hot);text-shadow:0 0 34px rgba(255,51,64,.55)}
+.finale p{max-width:58ch;color:#d9d4cf}
+.contact{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+
+/* ---------- Hoodie ---------- */
+.viewer{margin:0;display:grid;gap:12px}
+.viewer-frame{position:relative;width:100%;aspect-ratio:16/9;max-height:78vh;min-height:360px;background:#050304;border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.viewer-frame::before{content:"";position:absolute;z-index:1;left:-1px;top:-1px;width:56px;height:3px;background:var(--red);box-shadow:0 0 16px var(--red-hot);pointer-events:none}
+.viewer-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#050304}
+.viewer-frame:fullscreen{max-height:none;aspect-ratio:auto;border:0}
+.viewer-frame:fullscreen::before{display:none}
+.viewer figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 18px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#c9c4c8;text-shadow:0 1px 10px rgba(0,0,0,.9)}
+.viewer figcaption .btn{padding:9px 16px;font-size:11.5px;color:var(--bone);cursor:pointer}
+.viewer figcaption .btn[hidden]{display:none}
+.viewer figcaption .btn::after{content:"⤢"}
+@media (max-width:760px){.viewer-frame{aspect-ratio:4/5;max-height:72vh}}
+.inline{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--red-hot);text-decoration:none;white-space:nowrap}
+.inline::after{content:" →"}
+.inline:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* ---------- Seitenende ---------- */
+.next{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 24px;border:1px solid var(--line);background:rgba(9,9,11,.62);text-decoration:none;transition:border-color .2s,background .2s}
+.next:hover{border-color:var(--red);background:rgba(50,6,9,.7)}
+.next small{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash)}
+.next strong{display:block;font-family:var(--display);font-weight:900;font-size:clamp(1.8rem,3.4vw,2.6rem);text-transform:uppercase;line-height:1}
+.next .arr{font-family:var(--display);font-size:44px;color:var(--red-hot)}
+.foot{padding:28px 16px 40px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ash)}
+.foot b{color:var(--red-hot);font-weight:400}
+
+/* ---------- Bewegung ---------- */
+.page.enter .head,.page.enter .hero{animation:rise .55s ease both}
+.page.enter .kanji{animation:flicker 1.1s steps(1) both}
+@keyframes rise{from{transform:translateY(14px);opacity:.2}to{transform:none;opacity:1}}
+@keyframes flicker{0%{opacity:.3}12%{opacity:1}18%{opacity:.35}26%{opacity:1}40%{opacity:.6}48%,100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- Einbettung (Google Sites) ---------- */
+.embed .top,.embed .next{display:none}
+.embed .bg{position:absolute;inset:0 0 auto 0;height:min(100vw,1300px);-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+.embed .grain{position:absolute}
+.embed body{position:relative;min-height:100%;overflow-x:hidden}
+.embed .page{padding-top:clamp(28px,5vw,64px)}
+</style>
+</head>
+<body>
+<div aria-hidden="true" class="bg">
+<div class="bg-l on" data-p="start" style="background-image:url(img/bg1.jpg)"></div>
+<div class="bg-l" data-p="ueber-uns" style="background-image:url(img/bg2.jpg)"></div>
+<div class="bg-l" data-p="leistungen" style="background-image:url(img/bg3.jpg)"></div>
+<div class="bg-l" data-p="kunden-events" style="background-image:url(img/bg4.jpg)"></div>
+<div class="bg-l" data-p="team" style="background-image:url(img/bg5.jpg)"></div>
+<div class="bg-l" data-p="hoodie" style="background-image:url(img/bg2.jpg)"></div>
+<div class="bg-l" data-p="standort" style="background-image:url(img/bg6.jpg)"></div>
+</div>
+<div aria-hidden="true" class="grain"></div>
+<header class="top">
+<a aria-label="Midnight Society, zur Startseite" class="brand" href="#start">
+<svg aria-hidden="true" viewbox="0 0 40 40"><circle cx="20" cy="20" fill="#e3171e" r="17"></circle><circle cx="27.5" cy="14.5" fill="#09090b" r="14"></circle><circle cx="20" cy="20" fill="none" opacity=".5" r="19" stroke="#e3171e" stroke-width="1"></circle></svg>
+<span><b>Midnight Society</b><small lang="ja">真夜中の会</small></span>
+</a>
+<nav aria-label="Seiten" class="nav">
+<a aria-current="page" href="#start"><i>01</i>Start</a>
+<a href="#ueber-uns"><i>02</i>Über uns</a>
+<a href="#leistungen"><i>03</i>Leistungen</a>
+<a href="#kunden-events"><i>04</i>Kunden &amp; Events</a>
+<a href="#team"><i>05</i>Team</a>
+<a href="#hoodie"><i>06</i>Hoodie</a>
+<a href="#standort"><i>07</i>Standort</a>
+</nav>
+</header>
+<main>
+<!-- ======================= 01 START ======================= -->
+<section aria-label="Start" class="page" data-side="right" id="p-start">
+<div class="col">
+<header class="hero head" style="--n:3">
+<span aria-hidden="true" class="kanji" lang="ja">真夜中</span>
+<p class="eyebrow"><span>Tuning Workshop</span><span>Tokyo Street</span><span>Corleone City</span></p>
+<h1 class="mega"><span>Midnight</span><span class="red">Society</span></h1>
+<p class="jp-sub" lang="ja">真夜中の会</p>
+<p class="lede">Eine Tuning-Werkstatt im japanischen Streetstyle, mit eigenen Builds, festen Stammkunden und einer Szene, die man in der Stadt auch sieht.</p>
+<div class="cta-row"><a class="btn btn-red" href="#leistungen">Leistungen ansehen</a><a class="btn" href="#kunden-events">Treffen &amp; Events</a><a class="btn" href="#hoodie">Crew Hoodie in 3D</a></div>
+</header>
+<div aria-label="Öffnungszeiten" class="status" role="list">
+<div role="listitem"><b><span aria-hidden="true" class="dot"></span>Abends &amp; nachts</b>Hauptöffnungszeit, Werkstatt besetzt</div>
+<div role="listitem"><b>Tagsüber</b>Geöffnet, wenn jemand aus dem Team da ist</div>
+<div role="listitem"><b>Termine</b>Jederzeit nach Absprache</div>
+</div>
+<nav aria-label="Unsere vier Säulen" class="pillars">
+<a class="pillar" href="#leistungen"><span class="n">01</span><strong>Termin-Tuning</strong><span>Beratung, Tuningkonzept und Preisfreigabe, bevor geschraubt wird.</span><em>Leistungen</em></a>
+<a class="pillar" href="#leistungen"><span class="n">02</span><strong>Verkauf &amp; Builds</strong><span>Fahrzeug bei uns kaufen und direkt vor Ort umbauen lassen.</span><em>Builds</em></a>
+<a class="pillar" href="#kunden-events"><span class="n">03</span><strong>Kundenprofile</strong><span>Wer wiederkommt, muss nichts neu erklären. Wir kennen dich und dein Auto.</span><em>Kundenakte</em></a>
+<a class="pillar" href="#kunden-events"><span class="n">04</span><strong>Treffen &amp; Ausfahrten</strong><span>Midnight Meets, Street Cruises und der Midnight Showcase.</span><em>Events</em></a>
+</nav>
+<blockquote class="quote">„Wir tunen nicht einfach Autos und schicken sie weg. Wir bauen Fahrzeuge mit Geschichte und eine eigene Szene.“<cite>Midnight Society</cite></blockquote>
+<a class="next" href="#ueber-uns"><span><small>Weiter</small><strong>Über uns</strong></span><span aria-hidden="true" class="arr">→</span></a>
+</div>
+<div aria-label="Neon lights. Clean builds. Japanese soul." class="band"><div aria-hidden="true"><span>Neon lights.</span><span>Clean builds.</span><span>Japanese soul.</span><span>Neon lights.</span><span>Clean builds.</span><span>Japanese soul.</span><span>Neon lights.</span><span>Clean builds.</span><span>Japanese soul.</span><span>Neon lights.</span><span>Clean builds.</span><span>Japanese soul.</span></div></div>
+</section>
+<!-- ======================= 02 ÜBER UNS ======================= -->
+<section aria-label="Über uns" class="page" data-side="right" hidden="" id="p-ueber-uns">
+<div class="col">
+<header class="head" style="--n:2">
+<span aria-hidden="true" class="kanji" lang="ja">仲間</span>
+<p class="chapter"><b>01 – 03</b>Über uns</p>
+<h2>Mehr als eine <em>Werkstatt.</em></h2>
+<p class="lede">Ein Treffpunkt für die JDM- und Underground-Szene: Neonlicht, dunkles Design, JDM-Klassiker und Builds mit Wiedererkennungswert.</p>
+</header>
+<article class="glass">
+      <div class="intro"><p class="kicker">01 / Wer wir sind</p><h3>Kenji Yamato und eine Handvoll JDM-Leute.</h3></div>
+      <div class="main"><div class="two">
+<div style="display:grid;gap:10px">
+<p class="kicker" style="color:var(--ash)">Der Gründer</p>
+<p class="copy">Kenji Yamato ist seit rund zwei Monaten in Corleone City unterwegs. Bei CC Performance hat er gesehen, wie eine Werkstatt im Alltag läuft, was Kunden erwarten und wo man es besser machen kann.</p>
+<p class="copy">Kenji lebt für JDM. Mit Midnight Society baut er einen Ort, an dem nicht nur geschraubt wird, sondern an dem sich die Szene trifft.</p>
+</div>
+<div style="display:grid;gap:10px">
+<p class="kicker" style="color:var(--ash)">Das Team</p>
+<p class="copy">Wir starten mit einer Handvoll Leute, die alle schon Erfahrung in der JDM-Szene haben. Lieber ein kleines, festes Team, das zuverlässig da ist, und dann sauber über Ausbildung und Ränge wachsen.</p>
+</div>
+</div></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">02 / Vision &amp; Ziele</p><h3>Wer an japanisches Tuning denkt, denkt an uns.</h3><p class="copy">Wenn jemand in der Stadt an japanisches Tuning denkt, soll ihm als Erstes Midnight Society einfallen. Dafür bauen wir Schritt für Schritt auf:</p></div>
+      <div class="main"><ol class="timeline">
+<li><strong>Kurzfristig</strong><span>Feste Öffnungszeiten am Abend, Terminsystem, Preisliste und ein einheitliches Auftreten im Team.</span></li>
+<li><strong>Mittelfristig</strong><span>Erste Stammkunden mit eigenem Kundenprofil, regelmäßige Treffen und Ausfahrten, neue Mitarbeiter ausbilden.</span></li>
+<li><strong>Langfristig</strong><span>Eine feste Marke in der Stadt werden, mit VIP-Mitgliedschaften und Events wie dem Midnight Showcase.</span></li>
+</ol></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">03 / Aktivität &amp; Präsenz</p><h3>Wenn die Stadt schläft, haben wir offen.</h3><p class="copy">Passend zum Namen liegt unser Schwerpunkt am Abend und in der Nacht. Gerade dann ist auf dem Server viel los und es gibt oft weniger Anlaufstellen.</p></div>
+      <div class="main"><dl class="rows">
+<div class="row"><dt>Abends &amp; nachts</dt><dd>Hauptöffnungszeit. Werkstatt besetzt, Termine und spontane Kunden.</dd><span class="chip hot">Hauptzeit</span></div>
+<div class="row"><dt>Tagsüber</dt><dd>Geöffnet, wenn Mitarbeiter anwesend sind, oder nach Termin.</dd><span class="chip">Bei Anwesenheit</span></div>
+<div class="row"><dt>Termine</dt><dd>Jederzeit nach Absprache, auch außerhalb der festen Zeiten.</dd><span class="chip">Nach Absprache</span></div>
+</dl><p class="copy">Wir stehen nicht nur in der Halle. Mit unseren Fahrzeugen sind wir in der Stadt unterwegs, machen Ausfahrten und Treffen und nehmen aktiv am RP-Geschehen teil.</p></div>
+    </article>
+<a class="next" href="#leistungen"><span><small>Weiter</small><strong>Leistungen</strong></span><span aria-hidden="true" class="arr">→</span></a>
+</div>
+</section>
+<!-- ======================= 03 LEISTUNGEN ======================= -->
+<section aria-label="Leistungen" class="page" data-side="left" hidden="" id="p-leistungen">
+<div class="col">
+<header class="head" style="--n:2">
+<span aria-hidden="true" class="kanji" lang="ja">整備</span>
+<p class="chapter"><b>04</b>Leistungen</p>
+<h2>Geplant statt <em>improvisiert.</em></h2>
+<p class="lede">Tuning nach Termin, Fahrzeugverkauf mit Umbau vor Ort und Mitgliedschaften für alle, die öfter vorbeikommen.</p>
+</header>
+<article class="glass">
+      <div class="intro"><p class="kicker">Tuning nach Termin</p><h3>Wir nehmen uns Zeit für dein Auto.</h3><p class="copy">Du vereinbarst einen Termin, wir nehmen uns gezielt Zeit für dein Fahrzeug. Vor größeren Arbeiten sprechen wir Wünsche, Umfang und Kosten ab. Spontane Aufträge nehmen wir an, wenn Kapazität frei ist.</p></div>
+      <div class="main"><ol aria-label="Ablauf eines Auftrags" class="steps">
+<li><span>Termin­anfrage</span></li>
+<li><span>Beratung</span></li>
+<li><span>Tuning­konzept</span></li>
+<li><span>Preis­freigabe</span></li>
+<li><span>Umsetzung</span></li>
+<li><span>Übergabe</span></li>
+</ol></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">Fahrzeugverkauf &amp; Builds</p><h3>Vom ersten Gespräch bis zum fertigen Auto.</h3><p class="copy">Wer bei uns ein Fahrzeug kauft, kann es direkt vor Ort umbauen lassen. Der Kunde bleibt die ganze Zeit bei uns.</p></div>
+      <div class="main"><div class="cards">
+<div class="card"><span class="chip tag">Build 01</span><h3>Street Build</h3><p>Felgen, Lackierung und optische Anpassungen.</p></div>
+<div class="card"><span class="chip tag">Build 02</span><h3>Performance Build</h3><p>Leistungs-Upgrades mit passendem Gesamtlook.</p></div>
+<div class="card sig"><span class="chip hot tag">Signature</span><h3>Midnight Signature</h3><p>Individuell geplantes Design mit besonderer Kombination aus Farbe, Felgen und Modifikationen.</p></div>
+</div></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">VIP-Mitgliedschaften</p><h3>Drei Stufen für Stammkunden.</h3></div>
+      <div class="main"><div class="tiers">
+<div class="tier">
+<div class="keycard"><span aria-label="Stufe 1 von 3" class="lv"><i class="f"></i><i></i><i></i></span><span aria-hidden="true" class="chipgfx"></span><span class="nm"><small>Midnight Society</small>Midnight Member</span><span aria-hidden="true" class="seal" lang="ja">会</span></div>
+<p>Zugang zu ausgewählten Angeboten und Community-Events.</p>
+</div>
+<div class="tier">
+<div class="keycard vip"><span aria-label="Stufe 2 von 3" class="lv"><i class="f"></i><i class="f"></i><i></i></span><span aria-hidden="true" class="chipgfx"></span><span class="nm"><small>Midnight Society</small>Midnight VIP</span><span aria-hidden="true" class="seal" lang="ja">会</span></div>
+<p>Bevorzugte Terminvergabe und ausgewählte Rabatte.</p>
+</div>
+<div class="tier">
+<div class="keycard elite"><span aria-label="Stufe 3 von 3" class="lv"><i class="f"></i><i class="f"></i><i class="f"></i></span><span aria-hidden="true" class="chipgfx"></span><span class="nm"><small>Midnight Society</small>Midnight Elite</span><span aria-hidden="true" class="seal" lang="ja">会</span></div>
+<p>Priorisierte Termine, besondere Aktionen und exklusive Events.</p>
+</div>
+</div><p class="note">Leistungen, Laufzeiten und Preise legen wir vor dem Start fest und halten uns dabei an die Möglichkeiten und Regeln des Servers.</p></div>
+    </article>
+<a class="next" href="#kunden-events"><span><small>Weiter</small><strong>Kunden &amp; Events</strong></span><span aria-hidden="true" class="arr">→</span></a>
+</div>
+</section>
+<!-- ======================= 04 KUNDEN & EVENTS ======================= -->
+<section aria-label="Kunden und Events" class="page" data-side="right" hidden="" id="p-kunden-events">
+<div class="col">
+<header class="head" style="--n:2">
+<span aria-hidden="true" class="kanji" lang="ja">集会</span>
+<p class="chapter"><b>05 – 06</b>Kunden &amp; Events</p>
+<h2>Wir kennen <em>unsere Kunden.</em></h2>
+<p class="lede">Hier wollen wir uns am meisten von anderen Werkstätten unterscheiden: Zu jedem Stammkunden legen wir ein Profil an.</p>
+</header>
+<article class="glass">
+      <div class="intro"><p class="kicker">05 / Kundenprofil</p><h3>Wer wiederkommt, muss nichts neu erklären.</h3><p class="copy">Wir wissen schon, wie du drauf bist und was zu dir passt. So sieht eine Kundenakte bei uns aus:</p></div>
+      <div class="main"><div class="dossier">
+<header><span><b>Kundenakte</b> · Midnight Society</span><span>Aufbau</span></header>
+<dl>
+<div class="f"><dt>Kunde</dt><dd>Name, wie man ihn erreicht, wie er drauf ist.</dd></div>
+<div class="f"><dt>Fahrzeuge</dt><dd>Welche Autos er fährt und welche er schon bei uns hatte.</dd></div>
+<div class="f"><dt>Stil</dt><dd>Welche Richtung ihm gefällt.<div class="chips"><span class="chip">Street</span><span class="chip">Drift</span><span class="chip">Performance</span><span class="chip">Clean</span></div></dd></div>
+<div class="f"><dt>Umbauten</dt><dd>Was wir schon gemacht haben und wann.</dd></div>
+<div class="f"><dt>Wünsche</dt><dd>Pläne für den nächsten Build, offene Ideen.</dd></div>
+</dl>
+</div></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">Midnight Build-Buch</p><h3>Jedes große Projekt bekommt seinen Eintrag.</h3><p class="copy">Größere Projekte kommen ins Midnight Build-Buch. Auf Wunsch bekommst du ein Build-Zertifikat als Andenken an dein Fahrzeug.</p></div>
+      <div class="main"><div aria-label="Muster eines Build-Zertifikats" class="cert" role="img">
+<span class="muster">Muster</span>
+<span class="t1">Midnight Build-Buch</span>
+<span class="t2">Build-Zertifikat</span>
+<div class="lines"><span>Fahrzeug</span><span>Build</span><span>Besitzer</span><span>Datum</span></div>
+<span aria-hidden="true" class="hanko" lang="ja">真夜中</span>
+</div></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">06 / Community &amp; Events</p><h3>Eine Szene, die man sieht.</h3><p class="copy">Unsere Autos sollen nicht nur in der Halle stehen. Regelmäßige Treffen und Ausfahrten bringen Kunden zusammen und sorgen für RP mit anderen Spielern und Fraktionen.</p></div>
+      <div class="main"><ul class="events">
+<li><span aria-hidden="true" class="i" lang="ja">一</span><strong>Midnight Meet</strong><span>Nächtliches JDM-Treffen mit Fahrzeugpräsentation.</span></li>
+<li><span aria-hidden="true" class="i" lang="ja">二</span><strong>Street Cruise</strong><span>Gemeinsame Ausfahrt mit fester Route und Treffpunkt.</span></li>
+<li><span aria-hidden="true" class="i" lang="ja">三</span><strong>Build of the Month</strong><span>Monatliche Auszeichnung für den besten oder kreativsten Build.</span></li>
+<li><span aria-hidden="true" class="i" lang="ja">四</span><strong>VIP Night</strong><span>Treffen für Mitglieder, Stammkunden und eingeladene Gäste.</span></li>
+<li><span aria-hidden="true" class="i" lang="ja">五</span><strong>Midnight Showcase</strong><span>Besondere Fahrzeuge und ihre Umbaugeschichte werden vorgestellt.</span></li>
+</ul></div>
+    </article>
+<a class="next" href="#team"><span><small>Weiter</small><strong>Team</strong></span><span aria-hidden="true" class="arr">→</span></a>
+</div>
+</section>
+<!-- ======================= 05 TEAM ======================= -->
+<section aria-label="Team" class="page" data-side="center" hidden="" id="p-team">
+<div class="col">
+<header class="head" style="--n:2">
+<span aria-hidden="true" class="kanji" lang="ja">階級</span>
+<p class="chapter"><b>07 – 08</b>Team</p>
+<h2>Zwölf Ränge, <em>klare Zuständigkeiten.</em></h2>
+<p class="lede">Die Ränge orientieren sich an japanischen Werkstatt- und Firmentiteln. Jeder Rang hat feste Aufgaben, damit immer klar ist, wer wofür verantwortlich ist.</p>
+</header>
+<article class="glass">
+      <div class="intro"><p class="kicker">07 / Rangordnung</p><div class="legend"><span><i></i>Leitung · Rang 9–12, vergibt nur die Geschäftsführung</span><span><i class="p"></i>Probezeit</span></div></div>
+      <div class="main"><ol class="ranks" reversed="">
+<li class="rank lead"><span class="no">12</span><span class="kj" lang="ja">会長</span><span class="tt"><strong>Kaicho</strong><small>Gründer / Inhaber</small></span><span class="do">Gesamtverantwortung, Ansprechpartner für die Fraktionsverwaltung, letzte Entscheidung.</span></li>
+<li class="rank lead"><span class="no">11</span><span class="kj" lang="ja">社長</span><span class="tt"><strong>Shacho</strong><small>Geschäftsführung</small></span><span class="do">Führt den Betrieb, Finanzen, Preise und Partnerschaften.</span></li>
+<li class="rank lead"><span class="no">10</span><span class="kj" lang="ja">副社長</span><span class="tt"><strong>Fuku-Shacho</strong><small>Stellv. Geschäftsführung</small></span><span class="do">Vertritt die Geschäftsführung, Einstellungen und Kündigungen.</span></li>
+<li class="rank lead"><span class="no">9</span><span class="kj" lang="ja">部長</span><span class="tt"><strong>Bucho</strong><small>Werkstattleitung</small></span><span class="do">Plant Termine und Schichten, prüft die Qualität der Builds.</span></li>
+<li class="rank"><span class="no">8</span><span class="kj" lang="ja">課長</span><span class="tt"><strong>Kacho</strong><small>Teamleitung &amp; Personal</small></span><span class="do">Kümmert sich um Mitarbeiter, Beförderungsvorschläge, Kundenbuch.</span></li>
+<li class="rank"><span class="no">7</span><span class="kj" lang="ja">先生</span><span class="tt"><strong>Sensei</strong><small>Ausbilder</small></span><span class="do">Bildet Neulinge aus, nimmt Prüfungen für Beförderungen ab.</span></li>
+<li class="rank"><span class="no">6</span><span class="kj" lang="ja">職人</span><span class="tt"><strong>Shokunin</strong><small>Meister-Tuner</small></span><span class="do">Übernimmt Signature-Builds und schwierige Projekte.</span></li>
+<li class="rank"><span class="no">5</span><span class="kj" lang="ja">先輩</span><span class="tt"><strong>Senpai</strong><small>Senior-Mechaniker</small></span><span class="do">Selbstständige Builds, Fahrzeugverkauf, Beratung.</span></li>
+<li class="rank"><span class="no">4</span><span class="kj" lang="ja">整備士</span><span class="tt"><strong>Seibishi</strong><small>Mechaniker</small></span><span class="do">Standard-Tuning und Reparaturen ohne Aufsicht.</span></li>
+<li class="rank"><span class="no">3</span><span class="kj" lang="ja">後輩</span><span class="tt"><strong>Kohai</strong><small>Junior-Mechaniker</small></span><span class="do">Einfache Aufträge, arbeitet mit einem Senpai zusammen.</span></li>
+<li class="rank"><span class="no">2</span><span class="kj" lang="ja">見習い</span><span class="tt"><strong>Minarai</strong><small>Lehrling</small></span><span class="do">Lernt die Abläufe, arbeitet nur unter Anleitung.</span></li>
+<li class="rank trial"><span class="no">1</span><span class="kj" lang="ja">新人</span><span class="tt"><strong>Shinjin</strong><small>Neuling (Probezeit)</small></span><span class="do">Probezeit. Kennenlernen von Team, Regeln und Halle.</span></li>
+</ol></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">Aufstieg im Team</p><h3>Jeder fängt als Shinjin an.</h3></div>
+      <div class="main"><ol class="rules">
+<li>Nach der Probezeit entscheidet die Leitung über die Übernahme.</li>
+<li>Beförderungen richten sich nach Aktivität, Verhalten und Qualität der Arbeit, nicht nach Spielzeit allein.</li>
+<li>Ab Rang 4 (Seibishi) wird eine kurze Prüfung beim Sensei abgelegt.</li>
+<li>Die Ränge 9 bis 12 werden nur von der Geschäftsführung vergeben.</li>
+</ol></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">08 / Kleiderordnung</p><h3>Man erkennt uns sofort.</h3><p class="copy">Unsere Farben sind Schwarz mit roten Akzenten, passend zum Logo. Im Dienst trägt jeder die Teamkleidung, damit Kunden sofort sehen, wer zur Werkstatt gehört.</p></div>
+      <div class="main"><dl class="rows">
+<div class="row"><dt>Werkstatt</dt><dd>Schwarze Arbeitskleidung mit Midnight-Society-Logo und japanischem Druck.</dd><span class="chip">Im Dienst</span></div>
+<div class="row"><dt>Leitung</dt><dd>Wie die Werkstattkleidung, zusätzlich mit hellem Oberteil als Erkennungsmerkmal.</dd><span class="chip hot">Ab Rang 9</span></div>
+<div class="row"><dt>Events &amp; Ausfahrten</dt><dd>Hoodie im Midnight-Look, damit wir als Gruppe auftreten. Darf von der Szene nur bei Ausfahrten getragen werden.<br/><a class="inline" href="#hoodie">Hoodie in 3D ansehen</a></dd><span class="chip">Ausfahrten</span></div>
+</dl><ol class="rules">
+<li>Im Dienst wird immer die Teamkleidung getragen.</li>
+<li>Keine Masken oder Vermummung während der Arbeit. Kunden sollen wissen, mit wem sie sprechen.</li>
+<li>Außerhalb des Dienstes ist die Kleidung frei.</li>
+</ol></div>
+    </article>
+<a class="next" href="#hoodie"><span><small>Weiter</small><strong>Crew Hoodie</strong></span><span aria-hidden="true" class="arr">→</span></a>
+</div>
+</section>
+<!-- ======================= 06 HOODIE ======================= -->
+<section aria-label="Crew Hoodie" class="page" data-side="right" hidden="" id="p-hoodie">
+<div class="col">
+<header class="head" style="--n:2">
+<span aria-hidden="true" class="kanji" lang="ja">衣装</span>
+<p class="chapter"><b>08</b>Crew Hoodie</p>
+<h2>Der Crew <em>Hoodie.</em></h2>
+<p class="lede">Unser Hoodie für Treffen und Ausfahrten. Zieh mit der Maus oder dem Finger zur Seite und schau ihn dir von allen Seiten an.</p>
+</header>
+<figure class="viewer">
+<div class="viewer-frame" id="hoodie-wrap"><iframe allow="fullscreen" data-src="hoodie.html" id="hoodie-frame" title="3D-Ansicht des Midnight Society Crew Hoodies, zum Drehen ziehen"></iframe></div>
+<figcaption><span>3D-Ansicht · Orange Edition · Ziehen zum Drehen</span><button class="btn" id="hoodie-fs" type="button">Vollbild</button></figcaption>
+</figure>
+<article class="glass">
+      <div class="intro"><p class="kicker">Orange Edition</p><h3>Damit man uns als Gruppe erkennt.</h3><p class="copy">Der Hoodie gehört zu unserem Auftritt bei Events und Ausfahrten. In der Werkstatt bleibt es bei der schwarzen Arbeitskleidung.</p></div>
+      <div class="main"><dl class="rows">
+<div class="row"><dt>Vorne</dt><dd>Senkrechter Schriftzug <span lang="ja">深夜の仲間</span>, die „Crew der späten Nacht“, mit eingekreistem <span lang="ja">夜</span>.</dd><span class="chip">Front</span></div>
+<div class="row"><dt>Ärmel</dt><dd>Schwarze Streifen auf beiden Seiten mit <span lang="ja">真夜中の会</span> in Orange, unserem Namen auf Japanisch.</dd><span class="chip">Beide Ärmel</span></div>
+<div class="row"><dt>Rücken</dt><dd>Großes Logo: ein Torii mit JDM-Silhouette zwischen „Midnight“ und „Society“, darunter <span lang="ja">深夜の仲間</span>.</dd><span class="chip hot">Back</span></div>
+</dl><ol class="rules">
+<li>Das Team trägt den Hoodie bei Treffen, Ausfahrten und Events.</li>
+<li>Leute aus der Szene dürfen ihn nur bei Ausfahrten tragen.</li>
+<li>Im Werkstattdienst gilt die normale Teamkleidung.</li>
+</ol></div>
+    </article>
+<a class="next" href="#standort"><span><small>Weiter</small><strong>Standort</strong></span><span aria-hidden="true" class="arr">→</span></a>
+</div>
+</section>
+<!-- ======================= 07 STANDORT ======================= -->
+<section aria-label="Standort" class="page" data-side="left" hidden="" id="p-standort">
+<div class="col">
+<header class="head" style="--n:4">
+<span aria-hidden="true" class="kanji" lang="ja">東京通り</span>
+<p class="chapter"><b>09 – 11</b>Standort</p>
+<h2>Unsere Halle in der <em>Tokyo Street.</em></h2>
+<p class="lede">Backsteinwände, Neonschilder und JDM-Poster. Genau der Stil, den wir verkörpern wollen.</p>
+</header>
+<article class="glass">
+      <div class="intro"><p class="kicker">09 / Die Halle</p><p class="copy">Links und rechts in der Halle liegen die beiden Tuning-Points, an denen gleichzeitig zwei Fahrzeuge bearbeitet werden können. Die freie Fläche in der Mitte nutzen wir zum Präsentieren der Builds und für kleine Treffen.</p></div>
+      <div class="main"><figure class="plan" style="margin:0">
+<svg aria-label="Skizze der Halle: links Tuning-Point 1, rechts Tuning-Point 2, in der Mitte die Showfläche" role="img" viewbox="0 0 640 300">
+<defs>
+<pattern height="14" id="brick" patternunits="userSpaceOnUse" width="28"><rect fill="#2a1414" height="14" width="28"></rect><path d="M0 .5H28M0 7.5H28M14 0V7M0 7V14M28 7V14" stroke="#120808" stroke-width="1.5"></path></pattern>
+<lineargradient id="glow" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff3340" stop-opacity=".35"></stop><stop offset="1" stop-color="#ff3340" stop-opacity="0"></stop></lineargradient>
+</defs>
+<rect fill="url(#brick)" height="288" width="628" x="6" y="6"></rect>
+<rect fill="#0d0d10" height="256" width="596" x="22" y="22"></rect>
+<rect fill="url(#glow)" height="60" width="596" x="22" y="22"></rect>
+<line opacity=".9" stroke="#ff3340" stroke-width="3" x1="40" x2="600" y1="24" y2="24"></line>
+<g fill="none" stroke="#ff3340" stroke-dasharray="6 5" stroke-width="2">
+<rect height="190" width="150" x="44" y="70"></rect>
+<rect height="190" width="150" x="446" y="70"></rect>
+</g>
+<g fill="#1d1d22" stroke="#6d6a70" stroke-width="1.5">
+<rect height="130" rx="16" width="70" x="84" y="100"></rect>
+<rect height="130" rx="16" width="70" x="486" y="100"></rect>
+</g>
+<g fill="#3a0c10"><rect height="34" rx="6" width="54" x="92" y="120"></rect><rect height="34" rx="6" width="54" x="494" y="120"></rect></g>
+<circle cx="320" cy="168" fill="none" r="70" stroke="#f2eee7" stroke-opacity=".25" stroke-width="1.5"></circle>
+<circle cx="320" cy="168" fill="none" r="44" stroke="#f2eee7" stroke-dasharray="3 6" stroke-opacity=".15" stroke-width="1.5"></circle>
+<g fill="#f2eee7" font-family="JetBrains Mono, monospace" font-size="12" letter-spacing="1.5" text-anchor="middle">
+<text x="119" y="62">TUNING-POINT 1</text>
+<text x="521" y="62">TUNING-POINT 2</text>
+<text x="320" y="164">SHOWFLÄCHE</text>
+<text fill="#a7a3a9" font-size="10.5" x="320" y="182">BUILDS · TREFFEN</text>
+</g>
+<text fill="#ff3340" font-family="Dela Gothic One, sans-serif" font-size="18" letter-spacing="6" text-anchor="middle" x="320" y="60">真夜中の会</text>
+</svg>
+<figcaption>Skizze · nicht maßstabsgetreu</figcaption>
+</figure></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">10 / Unser Mehrwert für CC</p><h3>Was uns von anderen unterscheidet.</h3></div>
+      <div class="main"><ul class="values">
+<li><span class="n">01</span><strong>Kundenprofile</strong><span>Wir schreiben auf, wer unsere Kunden sind, was sie fahren und was sie mögen. So verstehen wir sie beim nächsten Besuch ohne viele Worte.</span></li>
+<li><span class="n">02</span><strong>Präsenz statt Fließband</strong><span>Wir tunen nicht nur und schicken die Autos weg, sondern sind mit unseren Fahrzeugen in der Stadt unterwegs.</span></li>
+<li><span class="n">03</span><strong>Treffen und Ausfahrten</strong><span>Regelmäßige Events schaffen RP für Kunden, andere Fraktionen und neue Spieler.</span></li>
+<li><span class="n">04</span><strong>Aktiv zur Nachtzeit</strong><span>Unser Schwerpunkt liegt abends und nachts, wenn viel los ist.</span></li>
+<li><span class="n">05</span><strong>Einstieg für Neue</strong><span>Über die Ausbildung vom Shinjin bis zum Mechaniker bekommen neue Spieler einen festen Platz bei uns, als Hilfe, wenn Platz ist, oder als gern gesehener Gast.</span></li>
+</ul></div>
+    </article>
+<article class="glass">
+      <div class="intro"><p class="kicker">11 / Schrittweiser Aufbau</p><h3>Erst stabil starten, dann wachsen.</h3></div>
+      <div class="main"><div class="phases">
+<div class="phase"><span class="chip hot" style="justify-self:start">Phase 1</span><div class="bar"><i style="width:33.3%"></i></div><h3>Fundament</h3><p>Terminsystem, Preisliste, Fahrzeugverkauf, einheitliches Auftreten.</p></div>
+<div class="phase"><span class="chip" style="justify-self:start">Phase 2</span><div class="bar"><i style="width:66.6%"></i></div><h3>Kundenbindung</h3><p>Kundenprofile, Build-Buch, Zertifikate, VIP-Karten.</p></div>
+<div class="phase"><span class="chip" style="justify-self:start">Phase 3</span><div class="bar"><i style="width:100%"></i></div><h3>Community</h3><p>Midnight Meets, Ausfahrten, VIP Nights und Showcases.</p></div>
+</div></div>
+    </article>
+<section aria-label="Fazit" class="finale">
+<p class="kicker">Eine Marke. Ein Stil. Eine Community.</p>
+<p class="big">More than tuning.<span>It's a lifestyle.</span></p>
+<p>Midnight Society verbindet Fahrzeugverkauf, Tuning, Mitgliedschaften und eine aktive JDM-Community. Uns geht es um Qualität, Wiedererkennungswert und Kunden, die gerne wiederkommen, weil sie sich bei uns verstanden fühlen.</p>
+<div class="contact"><span class="chip hot">Ansprechpartner: Kenji Yamato</span><span class="chip">Tokyo Street · Corleone City</span></div>
+</section>
+<a class="next" href="#start"><span><small>Zurück zum Anfang</small><strong>Start</strong></span><span aria-hidden="true" class="arr">↺</span></a>
+</div>
+</section>
+</main>
+<footer class="foot">Midnight Society <b>•</b> Tuning Workshop <b>•</b> Tokyo Street</footer>
+<script>
+(function(){
+  var PAGES=["start","ueber-uns","leistungen","kunden-events","team","hoodie","standort"];
+  var hf=document.getElementById("hoodie-frame");
+  var first=true;
+  function show(id){
+    if(PAGES.indexOf(id)<0) id="start";
+    PAGES.forEach(function(p){
+      var sec=document.getElementById("p-"+p);
+      if(sec){ sec.hidden=(p!==id); sec.classList.remove("enter"); }
+    });
+    document.querySelectorAll(".bg-l").forEach(function(l){ l.classList.toggle("on", l.getAttribute("data-p")===id); });
+    document.querySelectorAll(".nav a").forEach(function(a){
+      if(a.getAttribute("href")==="#"+id) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+    });
+    /* 3D-Hoodie nur laden, solange die Seite offen ist (spart Grafikleistung) */
+    if(hf){
+      if(id==="hoodie"){ if(hf.dataset.on!=="1"){ hf.src=hf.dataset.src; hf.dataset.on="1"; } }
+      else if(hf.dataset.on==="1"){ hf.src="about:blank"; hf.dataset.on=""; }
+    }
+    if(!first){
+      var cur=document.getElementById("p-"+id);
+      void cur.offsetWidth; cur.classList.add("enter");
+      window.scrollTo(0,0);
+    }
+    first=false;
+  }
+  var fs=document.getElementById("hoodie-fs"), wrap=document.getElementById("hoodie-wrap");
+  if(fs&&wrap){
+    var req=wrap.requestFullscreen||wrap.webkitRequestFullscreen;
+    if(!req||!(document.fullscreenEnabled||document.webkitFullscreenEnabled)) fs.hidden=true;
+    else fs.addEventListener("click",function(){ try{ var r=req.call(wrap); if(r&&r.catch) r.catch(function(){}); }catch(e){} });
+  }
+  window.addEventListener("hashchange",function(){ show(location.hash.slice(1)); });
+  show(location.hash.slice(1));
+})();
+</script>
+</body>
+</html>
